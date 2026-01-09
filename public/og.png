@@ -1,0 +1,12 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD302;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF5C01;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+  <text x="600" y="250" font-family="system-ui, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">BONK PFP MAKER</text>
+  <text x="600" y="350" font-family="system-ui, sans-serif" font-size="36" fill="white" text-anchor="middle">Create Your Memecoin Avatar</text>
+  <text x="600" y="450" font-family="system-ui, sans-serif" font-size="24" fill="white" text-anchor="middle" opacity="0.8">Free • Community Packs • HD Export</text>
+</svg>
