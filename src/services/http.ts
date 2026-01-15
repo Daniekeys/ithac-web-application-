@@ -42,7 +42,11 @@ const createHttpClient = (): AxiosInstance => {
       // Check for action in success response
       if (response.data && response.data.action?.toLowerCase() === "onboard") {
          if (typeof window !== "undefined") {
-            window.location.href = "/onboarding";
+            const userType = sessionStorage.getItem("userType");
+            // Only redirect to onboarding if userType is explicitly 'user'
+            if (userType === 'user') {
+                 window.location.href = "/onboarding";
+            }
          }
       }
       return response;
@@ -51,8 +55,12 @@ const createHttpClient = (): AxiosInstance => {
       // @ts-ignore
       if (error.response?.data?.action === "onboard" || error.response?.data?.action?.toLowerCase() === "onboard") {
           if (typeof window !== "undefined") {
-            window.location.href = "/onboarding";
-            return Promise.reject(error);
+            const userType = sessionStorage.getItem("userType");
+            // Only redirect to onboarding if userType is explicitly 'user'
+            if (userType === 'user') {
+                window.location.href = "/onboarding";
+                return Promise.reject(error);
+            }
           }
       }
 
@@ -60,7 +68,13 @@ const createHttpClient = (): AxiosInstance => {
         // Special case: If history endpoint returns 401, it means user is not onboarded
         if (error.config?.url?.includes("/user/dashboard/history")) {
              if (typeof window !== "undefined") {
-                 window.location.href = "/onboarding";
+                 const userType = sessionStorage.getItem("userType");
+                 // Only redirect to onboarding if userType is explicitly 'user'
+                 if (userType === 'user') {
+                    window.location.href = "/onboarding";
+                    return Promise.reject(error);
+                 }
+                 // If not user (e.g. admin), do not redirect to onboarding, just reject
                  return Promise.reject(error);
              }
         }

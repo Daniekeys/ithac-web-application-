@@ -52,13 +52,14 @@ export const useAuth = () => {
     },
     onSuccess: (data) => {
       if (data.success) {
-        // Check if email is verified
-        if (data.user._email === false) {
+        const userType = sessionStorage.getItem("userType");
+
+        // 1. User Logic Only: Check email verification (Skip if admin)
+        if (userType !== 'admin' && data.user._email === false) {
            clearUser(); // Ensure state is clean
            toast({
                title: "Email verification required",
                description: "Please verify your email address to continue.",
-               // variant: "default", 
            });
            router.push(`/verify-email?id=${data.user._id}`);
            return;
@@ -72,26 +73,21 @@ export const useAuth = () => {
             description: "Welcome back!",
         });
 
-        if (data.user.role === 'admin') {
-             router.push("/admin");
-             return;
-        }
-
-        // Check Onboarding status via history call (as requested)
-        // If action is "onboard", the http interceptor will handle the redirection.
-        try {
-            courseService.getUserHistory().then(() => {
-                 // If success (and no redirect happen), go to dashboard
+        // 2. Onboarding/History Check (User Logic Only - Skip if admin)
+        if (userType !== 'admin') {
+            try {
+                courseService.getUserHistory().then(() => {
+                     router.push("/user");
+                }).catch(() => {
+                     router.push("/user");
+                });
+            } catch {
                  router.push("/user");
-            }).catch(() => {
-                 // If failed, interceptor might catch it. 
-                 // If not caught by interceptor (e.g. 500), we still default to dashboard or handle error.
-                 // Assuming interceptor handles "onboard" action.
-                 // For now, if catch happens and we are still here, try dashboard or stay.
-                 router.push("/user");
-            });
-        } catch {
-             router.push("/user");
+            }
+        } else {
+            // Optional: Redirect admin to admin dashboard if they used the user login form by mistake but are identified as admin via session logic
+            // providing a fallback or just keeping them on current page/redirecting to home if needed.
+             router.push("/admin"); 
         }
       } else {
          toast({
@@ -147,7 +143,12 @@ export const useAuth = () => {
                 title: "Email verified!",
                 description: "Proceeding to onboarding...",
             });
-            router.push("/onboarding");
+            const userType = sessionStorage.getItem("userType");
+            if (userType !== 'admin') {
+                router.push("/onboarding");
+            } else {
+                 router.push("/admin");
+            }
         }
     },
     onError: (error: Error) => {
@@ -155,7 +156,7 @@ export const useAuth = () => {
             title: "Verification failed",
             description: error.message || "Invalid or expired token",
             variant: "destructive",
-         });
+        });
     }
   });
 
@@ -231,12 +232,14 @@ export const useAuth = () => {
         // Note: Admin API might return data in data.data or data.user, verify based on response
         // Assuming data.data based on typical pattern or data.user
         setUser(data.data || data.user, data.token);
+        sessionStorage.setItem("userType", "admin");
         
         toast({
             title: "Admin Login successful",
             description: "Welcome Admin!",
         });
         
+        // Admin Logic Only: Direct redirect to admin dashboard
         router.push("/admin");
       } else {
          toast({
@@ -273,6 +276,26 @@ export const useAuth = () => {
       }
   });
 
+  const adminLogoutMutation = useMutation({
+      mutationFn: async () => {
+          return (await httpClient.post("/api/auth/logout", {})).data;
+      },
+      onSuccess: () => {
+          clearUser();
+          sessionStorage.removeItem("userType");
+          router.push("/admin-login");
+          toast({
+              title: "Logged out",
+          });
+      },
+      onError: () => {
+            // Force logout local even if server fail
+             clearUser();
+             sessionStorage.removeItem("userType");
+             router.push("/admin-login");
+      }
+  });
+
   return {
     login: loginMutation,
     register: registerMutation,
@@ -281,6 +304,7 @@ export const useAuth = () => {
     resetPassword: resetPasswordMutation,
     onboard: onboardingMutation,
     logout: logoutMutation,
-    adminLogin: adminLoginMutation
+    adminLogin: adminLoginMutation,
+    adminLogout: adminLogoutMutation
   };
 };

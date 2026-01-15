@@ -34,7 +34,9 @@ export const useAuthStore = create<AuthState>()(
 
       isAdmin: () => {
         const { user } = get();
-        return user?.role === "admin";
+        // Check session storage first as it's the primary source of truth for current session type
+        const sessionUserType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem("userType") : null;
+        return sessionUserType === 'admin' || user?.role === "admin";
       },
     }),
     {

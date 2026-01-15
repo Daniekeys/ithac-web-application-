@@ -27,6 +27,14 @@ export default function UserLayout({ children }: UserLayoutProps) {
 
   useEffect(() => {
     if (isClient) {
+      const userType = sessionStorage.getItem("userType");
+      
+      // If user is admin, they shouldn't be here -> redirect to admin
+      if (userType === 'admin') {
+         router.push("/admin");
+         return;
+      }
+
       if (!isAuthenticated || !token) {
         router.push("/login");
       }

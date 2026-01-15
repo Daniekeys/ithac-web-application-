@@ -28,8 +28,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Only redirect if user is authenticated and on auth page
     if (user && isAuthPage) {
-      const redirectPath =
-        user.role === "admin" ? "/admin" : "/user";
+      const userType = sessionStorage.getItem("userType");
+      // Default to user if not set, or explicit check
+      const redirectPath = userType === "admin" ? "/admin" : "/user";
+      
       console.log(
         "🔄 Authenticated user on auth page, redirecting to:",
         redirectPath

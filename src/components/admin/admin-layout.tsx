@@ -22,14 +22,23 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     if (isClient) {
-      if (!isAuthenticated || !token || user?.role !== "admin") {
+      const userType = sessionStorage.getItem("userType");
+      // Strict check: Must be admin AND authenticated to stay on this page
+      if (userType !== "admin" || !isAuthenticated || !token) {
         router.push("/admin-login");
       }
     }
-  }, [isClient, isAuthenticated, token, user, router]);
+  }, [isClient, router, isAuthenticated, token]);
 
-  if (!isClient || !isAuthenticated || !token || user?.role !== "admin") {
-    return null; // Or a loading spinner
+  if (!isClient) {
+    return null;
+  }
+
+  // Double check for render logic to avoid flashing content if not admin (though useEffect handles redirect)
+  // We allow rendering if userType is admin AND authenticated, even if store is syncing.
+  const userType = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem("userType") : null;
+  if (userType !== "admin" || !isAuthenticated || !token) {
+      return null;
   }
 
   return (

@@ -17,12 +17,12 @@ import { useAdminStore } from "@/store/admin.store";
 import { cn } from "@/lib/utils";
 
 export function Header() {
-  const { logout } = useAuth();
+  const { adminLogout } = useAuth();
   const { user } = useAuthStore();
   const { sidebarCollapsed } = useAdminStore();
 
   const handleLogout = async () => {
-    logout.mutate();
+    adminLogout.mutate();
     // mutation handles redirect usually, but if we want to force explicit redirect here:
     // router.push("/auth/admin-login"); 
     // However, mutation onSuccess does it. Let's just call mutate.

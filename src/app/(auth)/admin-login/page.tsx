@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -29,6 +29,11 @@ type AdminLoginForm = z.infer<typeof adminLoginSchema>;
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const { adminLogin } = useAuth();
+
+  useEffect(() => {
+    sessionStorage.setItem("userType", "admin");
+  }, []);
+  
 
   const form = useForm<AdminLoginForm>({
     resolver: zodResolver(adminLoginSchema),
