@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminStore } from "@/store/admin.store";
@@ -24,7 +25,9 @@ const navigation = [
     href: "/admin/contributors",
     icon: Users,
   },
+  { name: "Transactions", href: "/admin/transactions", icon: CreditCard },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { name: "Profile", href: "/admin/profile", icon: Users },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 

@@ -84,36 +84,37 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     lessons = courseData.data.lessons as Lesson[];
   }
 
-  console.log("🔍 Course Detail extraction:", {
-    hasCourseData: !!courseData,
-    hasData: !!courseData?.data,
-    hasCourse: !!course,
-    hasLessons: !!lessons,
-    courseDataKeys: courseData ? Object.keys(courseData) : [],
-    dataKeys: courseData?.data ? Object.keys(courseData.data) : [],
-    courseKeys: course ? Object.keys(course) : [],
-    lessonsCount: lessons.length,
-    courseTitle: course?.title,
-    courseId: course?._id,
-    lessonsData: lessons,
-    courseLessons: course?.lessons,
-    courseLessonsType: course?.lessons ? typeof course.lessons[0] : "undefined",
-    rootLessons: courseData?.lessons,
-    rootLessonsType: courseData?.lessons
-      ? typeof courseData.lessons[0]
-      : "undefined",
-    apiStructure: {
-      hasSuccess: !!courseData?.success,
-      hasStatus: !!courseData?.status,
-      hasDataField: !!courseData?.data,
-      hasRootLessonsField: !!courseData?.lessons,
-      hasDataLessonsField: !!courseData?.data?.lessons,
-      hasCourseLessonsField: !!course?.lessons,
-    },
-  });
+  // console.log("🔍 Course Detail extraction:", {
+  //   hasCourseData: !!courseData,
+  //   hasData: !!courseData?.data,
+  //   hasCourse: !!course,
+  //   hasLessons: !!lessons,
+  //   courseDataKeys: courseData ? Object.keys(courseData) : [],
+  //   dataKeys: courseData?.data ? Object.keys(courseData.data) : [],
+  //   courseKeys: course ? Object.keys(course) : [],
+  //   lessonsCount: lessons.length,
+  //   courseTitle: course?.title,
+  //   courseId: course?._id,
+  //   lessonsData: lessons,
+  //   courseLessons: course?.lessons,
+  //   courseLessonsType: course?.lessons ? typeof course.lessons[0] : "undefined",
+  //   rootLessons: courseData?.lessons,
+  //   rootLessonsType: courseData?.lessons
+  //     ? typeof courseData.lessons[0]
+  //     : "undefined",
+  //   apiStructure: {
+  //     hasSuccess: !!courseData?.success,
+  //     hasStatus: !!courseData?.status,
+  //     hasDataField: !!courseData?.data,
+  //     hasRootLessonsField: !!courseData?.lessons,
+  //     hasDataLessonsField: !!courseData?.data?.lessons,
+  //     hasCourseLessonsField: !!course?.lessons,
+  //   },
+  // });
 
   // Check if course has required fields
   const isValidCourse = course && course.title && course._id;
+
 
   if (!isValidCourse) {
     return (
@@ -170,23 +171,33 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           <Card>
             <CardContent className="p-0">
               <div className="aspect-video relative bg-gray-100 rounded-t-lg overflow-hidden">
-                {course?.image ? (
-                  <Image
-                    src={course.image}
-                    alt={course?.title || "Course image"}
-                    fill
-                    className="object-cover"
+                {course?.introductory_video ? (
+                  <video
+                    src={course.introductory_video}
+                    controls
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    <span className="text-gray-400">No image available</span>
-                  </div>
+                  <>
+                    {course?.image ? (
+                      <Image
+                        src={course.image}
+                        alt={course?.title || "Course image"}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                        <span className="text-gray-400">No image available</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-black bg-opacity-50 rounded-full p-4">
+                        <Play className="h-8 w-8 text-white" />
+                      </div>
+                    </div>
+                  </>
                 )}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-black bg-opacity-50 rounded-full p-4">
-                    <Play className="h-8 w-8 text-white" />
-                  </div>
-                </div>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-4">
@@ -299,6 +310,9 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                           ) : (
                             <Badge variant="default">Premium</Badge>
                           )}
+                          <Link href={`/admin/courses/${course?._id}/lessons/${lesson._id}`} className="ml-4">
+                              <Button variant="ghost" size="sm">View</Button>
+                          </Link>
                         </div>
                       </div>
                     ))}

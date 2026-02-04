@@ -1,16 +1,7 @@
 
-export interface User {
-  _id: string;
-  email: string;
-  name?: string;
-  nickname?: string;
-  image?: string;
-  profession?: string;
-  role?: "user" | "admin";
-  disable?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { User } from "@/types/auth";
+
+export type { User };
 
 export interface UserResponse {
   success: boolean;

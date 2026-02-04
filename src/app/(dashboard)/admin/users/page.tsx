@@ -147,13 +147,17 @@ export default function UsersPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar>
-                            <AvatarImage src={user.image} />
+                            <AvatarImage src={user.image || undefined} />
                             <AvatarFallback>
-                              {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                              {user.firstname?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium">{user.name || "N/A"}</span>
+                            <span className="font-medium">
+                              {user.firstname && user.lastname 
+                                ? `${user.firstname} ${user.lastname}` 
+                                : user.name || "N/A"}
+                            </span>
                             <span className="text-xs text-muted-foreground">
                               {user.email}
                             </span>
@@ -161,18 +165,28 @@ export default function UsersPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={user.role === "admin" ? "default" : "outline"}
-                        >
-                          {user.role || "User"}
-                        </Badge>
+                         <div className="flex flex-col gap-1">
+                            <Badge variant={user.role === "admin" ? "default" : "outline"}>
+                                {user.role || "User"}
+                            </Badge>
+                            {user.skill && (
+                                <Badge variant="secondary" className="w-fit text-xs">
+                                    {user.skill}
+                                </Badge>
+                            )}
+                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={user.disable ? "destructive" : "secondary"}
-                        >
-                          {user.disable ? "Disabled" : "Active"}
-                        </Badge>
+                        <div className="flex flex-col gap-1">
+                            <Badge
+                            variant={user.disable ? "destructive" : "secondary"}
+                            >
+                            {user.disable ? "Disabled" : "Active"}
+                            </Badge>
+                             <div className="flex gap-1 text-[10px] text-muted-foreground">
+                                {user._email && <span className="text-green-600">Email Verified</span>}
+                            </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                          {user.createdAt

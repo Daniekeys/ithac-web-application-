@@ -86,7 +86,7 @@ export default function UserDetailsPage() {
           </CardHeader>
           <CardContent className="flex flex-col items-center text-center space-y-4">
             <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-              <AvatarImage src={user.image} alt={user.name} />
+              <AvatarImage src={user.image || undefined} alt={user.name} />
               <AvatarFallback className="text-4xl bg-primary/10 text-primary">
                 {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
               </AvatarFallback>

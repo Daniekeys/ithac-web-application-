@@ -106,6 +106,7 @@ export interface ApiResponse<T = any> {
   status: string;
   error?: string;
   body?: T;
+  data?: T;
   token?: string;
   action?: Record<string, any>;
 }
@@ -120,5 +121,5 @@ export const handleApiResponse = <T>(
     throw new Error(data.error || "API request failed");
   }
 
-  return (data.body || data) as T;
+  return (data.body || data.data || data) as T;
 };

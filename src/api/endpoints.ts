@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   // User Profile (via Next.js API routes)
   USER_PROFILE: "/api/user/profile",
   ADMIN_PROFILE: "/api/admin/profile",
+  USER_PASSWORD: "/api/user/password",
 
   // Course Management (via Next.js API routes)
   COURSES: "/api/courses",
@@ -40,8 +41,9 @@ export const API_ENDPOINTS = {
   CONTRIBUTORS: "/api/contributors",
   
   // Admin User Management
-  ADMIN_USERS: "/admin/users",
-  ADMIN_USER: "/admin/user",
+  ADMIN_USERS: "/api/admin/users",
+  ADMIN_USER: "/api/admin/users",
+  ADMIN_TRANSACTIONS: "/api/admin/transactions",
 
   // Direct external endpoints (if needed)
   WAITLIST: "/waitlist",
