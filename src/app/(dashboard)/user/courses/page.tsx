@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUserCourses } from "@/hooks/useUserCourse";
+import { useUserCourses, useAddToSaved, useRemoveFromSaved, useUserSavedCourses } from "@/hooks/useUserCourse";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  Heart,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -46,74 +47,114 @@ export default function CoursesPage() {
     }
   };
 
-  const CourseCard = ({ course }: { course: Course }) => (
-    <Link href={`/user/courses/${course._id}`}>
-      <Card className="group hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
-        <div className="aspect-video relative bg-gray-200 rounded-t-lg overflow-hidden">
-          {course.image ? (
-            <Image
-              src={course.image}
-              alt={course.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <BookOpen className="h-10 w-10 text-gray-400" />
-            </div>
-          )}
-          {course.level && (
-            <Badge
-              className={`absolute top-2 left-2 ${getLevelColor(course.level)}`}
-              variant="secondary"
+  // Course Card Component
+  const CourseCard = ({ course }: { course: Course }) => {
+    const addToSaved = useAddToSaved();
+    const removeFromSaved = useRemoveFromSaved();
+    const { data: savedCoursesData } = useUserSavedCourses();
+    
+    // Check if course is already saved
+    // Assuming savedCoursesData.data is an array of courses
+    const isSaved = savedCoursesData?.data?.some(
+      (savedCourse: Course) => savedCourse._id === course._id
+    );
+
+    const handleToggleSave = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (isSaved) {
+        removeFromSaved.mutate(course._id);
+      } else {
+        addToSaved.mutate(course._id);
+      }
+    };
+
+    const isPending = addToSaved.isPending || removeFromSaved.isPending;
+
+    return (
+      <Link href={`/user/courses/${course._id}`}>
+        <Card className="group hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col relative">
+          <div className="aspect-video relative bg-gray-200 rounded-t-lg overflow-hidden">
+            {course.image ? (
+              <Image
+                src={course.image}
+                alt={course.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <BookOpen className="h-10 w-10 text-gray-400" />
+              </div>
+            )}
+            
+            {/* Level Badge */}
+            {course.level && (
+              <Badge
+                className={`absolute top-2 left-2 ${getLevelColor(course.level)}`}
+                variant="secondary"
+              >
+                {course.level}
+              </Badge>
+            )}
+
+            {/* Save Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors 
+                ${isSaved ? "text-red-500" : "text-gray-500 hover:text-red-500"}`}
+              onClick={handleToggleSave}
+              disabled={isPending}
             >
-              {course.level}
-            </Badge>
-          )}
-        </div>
-
-        <CardContent className="p-4 flex-1 flex flex-col">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
-              {course.title}
-            </h3>
-            <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-              {course.description}
-            </p>
+              <Heart className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
+            </Button>
           </div>
 
-          <div className="mt-auto space-y-3">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center">
-                <Clock className="h-3.5 w-3.5 mr-1" />
-                {course.duration || 0}h
-              </div>
-              <div className="flex items-center">
-                <Users className="h-3.5 w-3.5 mr-1" />
-                {course.enrolled_count || 0}
-              </div>
-              {(course.rating || 0) > 0 && (
+          <CardContent className="p-4 flex-1 flex flex-col">
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                {course.title}
+              </h3>
+              <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                {course.description}
+              </p>
+            </div>
+
+            <div className="mt-auto space-y-3">
+              <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center">
-                  <Star className="h-3.5 w-3.5 mr-1 fill-yellow-400 text-yellow-400" />
-                  {(course.rating || 0).toFixed(1)}
+                  <Clock className="h-3.5 w-3.5 mr-1" />
+                  {course.duration || 0}h
                 </div>
-              )}
-            </div>
+                <div className="flex items-center">
+                  <Users className="h-3.5 w-3.5 mr-1" />
+                  {course.enrolled_count || 0}
+                </div>
+                {(course.rating || 0) > 0 && (
+                  <div className="flex items-center">
+                    <Star className="h-3.5 w-3.5 mr-1 fill-yellow-400 text-yellow-400" />
+                    {(course.rating || 0).toFixed(1)}
+                  </div>
+                )}
+              </div>
 
-            <div className="flex items-center justify-between pt-3 border-t">
-              <span className="text-lg font-bold text-blue-600">
-                {formatPrice(course.amount || 0)}
-              </span>
-              <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full group-hover:bg-blue-100 transition-colors">
-                View Details
-              </span>
+              <div className="flex items-center justify-between pt-3 border-t">
+                <span className="text-lg font-bold text-blue-600">
+                  {formatPrice(course.amount || 0)}
+                </span>
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full group-hover:bg-blue-100 transition-colors">
+                  View Details
+                </span>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  };
 
   const CourseSkeleton = () => (
     <Card className="h-full">

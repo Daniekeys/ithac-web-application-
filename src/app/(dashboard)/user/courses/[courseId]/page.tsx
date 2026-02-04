@@ -5,6 +5,8 @@ import {
   useUserCourse,
   useAddToCart,
   useAddToSaved,
+  useRemoveFromSaved,
+  useUserSavedCourses,
   useUserCourseReviews,
   useCreateReview,
 } from "@/hooks/useUserCourse";
@@ -45,12 +47,18 @@ export default function CourseDetailPage() {
 
   const { data: courseData, isLoading, isError } = useUserCourse(courseId);
   const { data: reviewsData } = useUserCourseReviews(courseId);
+  const { data: savedCoursesData } = useUserSavedCourses();
   const addToCart = useAddToCart();
   const addToSaved = useAddToSaved();
+  const removeFromSaved = useRemoveFromSaved();
   const createReview = useCreateReview();
 
   const course: Course | undefined = courseData?.data;
   const lessons: Lesson[] = courseData?.lessons || [];
+
+  const isSaved = savedCoursesData?.data?.some(
+    (savedCourse: Course) => savedCourse._id === courseId
+  );
 
   const handleAddToCart = () => {
     if (course) {
@@ -58,9 +66,13 @@ export default function CourseDetailPage() {
     }
   };
 
-  const handleAddToSaved = () => {
+  const handleToggleSaved = () => {
     if (course) {
-      addToSaved.mutate(course._id);
+      if (isSaved) {
+        removeFromSaved.mutate(course._id);
+      } else {
+        addToSaved.mutate(course._id);
+      }
     }
   };
 
@@ -214,9 +226,10 @@ export default function CourseDetailPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={handleAddToSaved}
+                      onClick={handleToggleSaved}
+                      className={isSaved ? "text-red-500 hover:text-red-600" : ""}
                     >
-                      <Bookmark className="h-4 w-4" />
+                      <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
                     </Button>
                     <Button variant="ghost" size="sm">
                       <Share2 className="h-4 w-4" />
@@ -481,12 +494,12 @@ export default function CourseDetailPage() {
 
                   <Button
                     variant="outline"
-                    className="w-full"
-                    onClick={handleAddToSaved}
-                    disabled={addToSaved.isPending}
+                    className={`w-full ${isSaved ? "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200" : ""}`}
+                    onClick={handleToggleSaved}
+                    disabled={addToSaved.isPending || removeFromSaved.isPending}
                   >
-                    <Heart className="h-5 w-5 mr-2" />
-                    Save for Later
+                    <Heart className={`h-5 w-5 mr-2 ${isSaved ? "fill-current" : ""}`} />
+                    {isSaved ? "Saved" : "Save for Later"}
                   </Button>
                 </div>
 

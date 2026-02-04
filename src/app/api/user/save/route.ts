@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const backendResponse = await fetch(`${ENV.API_URL}/user/save`, {
+    const backendResponse = await fetch(`${ENV.API_URL}/user/courses/saved`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    const backendResponse = await fetch(`${ENV.API_URL}/user/save`, {
+    const backendResponse = await fetch(`${ENV.API_URL}/user/courses/save`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -102,7 +102,7 @@ export async function PUT(req: NextRequest) {
 
     const body = await req.json();
 
-    const backendResponse = await fetch(`${ENV.API_URL}/user/save`, {
+    const backendResponse = await fetch(`${ENV.API_URL}/user/courses/unsave`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,

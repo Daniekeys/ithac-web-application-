@@ -227,3 +227,26 @@ export const useAddLessonComment = () => {
     },
   });
 };
+  // Payment
+export const useCheckout = () => {
+  return useMutation({
+    mutationFn: () => userCourseService.checkout(),
+    // We don't automatically invalidate queries here because the success flow 
+    // depends on the Paystack callback which happens separately.
+    // Error handling/Toasts can be managed in the component to allow for custom alerts.
+     onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.response?.data?.error || "Checkout failed",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const usePaymentHistory = () => {
+  return useQuery({
+    queryKey: ["payment-history"],
+    queryFn: () => userCourseService.getPaymentHistory(),
+  });
+};

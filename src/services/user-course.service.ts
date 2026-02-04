@@ -112,7 +112,7 @@ export const userCourseService = {
       return response.data;
   },
   
-   addLessonComment: async (
+  addLessonComment: async (
     courseId: string,
     lessonId: string,
     commentData: CreateLessonCommentData
@@ -123,4 +123,15 @@ export const userCourseService = {
     );
     return response.data;
   },
+
+  // Payment
+  checkout: async (): Promise<any> => {
+     const response = await httpClient.get("/api/user/checkout");
+     return response.data;
+  },
+
+  getPaymentHistory: async (): Promise<any> => {
+      const response = await httpClient.get("/api/user/payment");
+      return response.data;
+  }
 };
