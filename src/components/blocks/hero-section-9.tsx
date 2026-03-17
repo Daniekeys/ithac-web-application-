@@ -8,7 +8,6 @@ import { Menu, X } from 'lucide-react'
 const menuItems = [
     { name: 'Features', href: '#features' },
     { name: 'Courses', href: '#courses' },
-    { name: 'Pricing', href: '#pricing' },
     { name: 'About Us', href: '#about' },
 ]
 
@@ -139,37 +138,61 @@ export const HeroSection = () => {
                 <section className="bg-white relative z-10 py-20 border-t border-slate-100">
                     <div className="m-auto max-w-5xl px-6">
                         <h2 className="text-center text-lg font-medium text-slate-500">Trusted by modern companies and leading educators</h2>
-                        <div className="mx-auto mt-16 flex max-w-4xl flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16 sm:gap-y-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                            <img
-                                className="h-5 w-fit mix-blend-multiply"
-                                src="https://html.tailus.io/blocks/customers/nvidia.svg"
-                                alt="Nvidia Logo"
-                            />
-                            <img
-                                className="h-6 w-fit mix-blend-multiply"
-                                src="https://html.tailus.io/blocks/customers/github.svg"
-                                alt="GitHub Logo"
-                            />
-                            <img
-                                className="h-5 w-fit mix-blend-multiply"
-                                src="https://html.tailus.io/blocks/customers/nike.svg"
-                                alt="Nike Logo"
-                            />
-                            <img
-                                className="h-5 w-fit mix-blend-multiply"
-                                src="https://html.tailus.io/blocks/customers/laravel.svg"
-                                alt="Laravel Logo"
-                            />
-                            <img
-                                className="h-7 w-fit mix-blend-multiply"
-                                src="https://html.tailus.io/blocks/customers/openai.svg"
-                                alt="OpenAI Logo"
-                            />
-                            <img
-                                className="h-5 w-fit mix-blend-multiply"
-                                src="https://html.tailus.io/blocks/customers/vercel.svg"
-                                alt="Vercel Logo"
-                            />
+                        <div className="mx-auto mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 items-center justify-center gap-x-8 gap-y-10 opacity-70  hover:grayscale-0 transition-all duration-500">
+                            <div className="flex justify-center">
+                                <Image
+                                    className="h-10 w-auto object-contain mix-blend-multiply"
+                                    src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=100&fit=crop&q=80"
+                                    alt="Company 1 Logo"
+                                    width={120}
+                                    height={40}
+                                />
+                            </div>
+                            <div className="flex justify-center">
+                                <Image
+                                    className="h-10 w-auto object-contain mix-blend-multiply"
+                                    src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=200&h=100&fit=crop&q=80"
+                                    alt="Company 2 Logo"
+                                    width={120}
+                                    height={40}
+                                />
+                            </div>
+                            <div className="flex justify-center">
+                                <Image
+                                    className="h-10 w-auto object-contain mix-blend-multiply"
+                                    src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=100&fit=crop&q=80"
+                                    alt="Company 3 Logo"
+                                    width={120}
+                                    height={40}
+                                />
+                            </div>
+                            <div className="flex justify-center">
+                                <Image
+                                    className="h-10 w-auto object-contain mix-blend-multiply"
+                                    src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200&h=100&fit=crop&q=80"
+                                    alt="Company 4 Logo"
+                                    width={120}
+                                    height={40}
+                                />
+                            </div>
+                            <div className="flex justify-center">
+                                <Image
+                                    className="h-10 w-auto object-contain mix-blend-multiply"
+                                    src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=100&fit=crop&q=80"
+                                    alt="Company 5 Logo"
+                                    width={120}
+                                    height={40}
+                                />
+                            </div>
+                            <div className="flex justify-center">
+                                <Image
+                                    className="h-10 w-auto object-contain mix-blend-multiply"
+                                    src="https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=200&h=100&fit=crop&q=80"
+                                    alt="Company 6 Logo"
+                                    width={120}
+                                    height={40}
+                                />
+                            </div>
                         </div>
                     </div>
                 </section>
