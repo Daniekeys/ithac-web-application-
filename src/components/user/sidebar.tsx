@@ -13,7 +13,8 @@ import {
   ShoppingCart,
   Bookmark,
   Award,
-  User
+  User,
+  CurrencyIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserDashboardStore } from "@/store/user-dashboard.store";
@@ -27,6 +28,7 @@ const navigation = [
   { name: "Saved Courses", href: "/user/saved", icon: Bookmark },
   { name: "Certificates", href: "/user/certificates", icon: Award },
   { name: "Profile", href: "/user/profile", icon: User },
+  { name: "Payment Histories", href: "/user/payments", icon: CurrencyIcon   },
 ];
 
 export function UserSidebar() {

@@ -17,6 +17,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import { useAuthStore } from "@/store/auth.store";
 
 // Define PaystackPop type globally
 declare global {
@@ -27,6 +28,7 @@ declare global {
 
 export default function CartPage() {
   const { data: cartData, isLoading, isError, refetch } = useUserCart();
+  const user = useAuthStore((state) => state.user); 
   const removeFromCart = useRemoveFromCart();
   const checkout = useCheckout();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -113,29 +115,29 @@ export default function CartPage() {
            // "auth.service.ts" exists.
            // I will simply ask the user to confirm their email before checkout or just use a default from local storage if available.
            
-           const email = localStorage.getItem("user_email") || "user@example.com"; 
+           const email = user?.email || prompt("Please enter your email for payment:"); 
 
            const handler = window.PaystackPop.setup({
-              key: 'pk_test_952a8997f5c031d387f8e3f88df0187f41b19cf0', // Use user provided key
-              email: email,
-              amount: paystackAmount,
-              ref: '' + Math.floor(Math.random() * 1000000000 + 1), // Or use transaction_id as ref? User script used random.
-              metadata: {
-                transaction_id: transaction_id
-              },
-              onClose: function () {
-                setIsProcessing(false);
-                alert('Payment window closed.');
-              },
-              callback: function (response: any) {
-                setIsProcessing(false);
-                alert('Payment complete! Reference: ' + response.reference);
-                // Ideally verify payment with backend here
-                // clear cart or redirect
-                refetch(); // Refresh cart to empty it
-                window.location.href = "/user/payments";
-              }
-            });
+             key: "pk_test_952a8997f5c031d387f8e3f88df0187f41b19cf0", // Use user provided key
+             email: email,
+             amount: paystackAmount,
+             ref: transaction_id, // Or use transaction_id as ref? User script used random.
+             metadata: {
+               transaction_id: transaction_id,
+             },
+             onClose: function () {
+               setIsProcessing(false);
+               alert("Payment window closed.");
+             },
+             callback: function (response: any) {
+               setIsProcessing(false);
+               alert("Payment complete! Reference: " + response.reference);
+               // Ideally verify payment with backend here
+               // clear cart or redirect
+               refetch(); // Refresh cart to empty it
+               window.location.href = "/user/payments";
+             },
+           });
             handler.openIframe();
 
         } else {
