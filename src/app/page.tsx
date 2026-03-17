@@ -9,6 +9,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { BookOpen, Users, Award, PlayCircle, Code, Briefcase, ChevronRight } from "lucide-react";
 import { HeroSection } from "@/components/blocks/hero-section-9";
+import { CourseSection } from "@/components/blocks/course-section";
 
 export default function HomePage() {
   const router = useRouter();
@@ -91,6 +92,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Courses Section */}
+      <CourseSection />
 
       {/* Stats Section with Dark Premium Feel */}
       <section className="py-24 bg-indigo-950 relative overflow-hidden">
