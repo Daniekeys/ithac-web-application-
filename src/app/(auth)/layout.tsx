@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AuthLayout({
   children,
@@ -6,20 +7,26 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
+    <div className="relative min-h-screen grid lg:max-w-none lg:grid-cols-2">
+      {/* Mobile Creative Background */}
+      <div className="absolute inset-0 lg:hidden overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900">
+        <div className="absolute inset-0 bg-[url('/auth-bg.png')] opacity-20 mix-blend-overlay bg-cover bg-center" />
+      </div>
+
+      <div className="relative hidden h-full flex-col bg-slate-900 p-10 text-white lg:flex dark:border-r">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="absolute inset-0 z-10">
-            <img 
+            <Image 
                src="/auth-bg.png" 
                alt="Background" 
-               className="h-full w-full object-cover opacity-50"
+               fill
+               className="object-cover opacity-50"
             />
         </div>
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Link href="/">
-             <div className="flex items-center space-x-2">
-                <span className="font-bold text-2xl tracking-tight">Ithac</span>
+             <div className="flex items-center space-x-2 bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
+                <Image src="/ithac-logo.png" alt="ITHAC Logo" width={140} height={40} className="object-contain brightness-0 invert" />
              </div>
           </Link>
         </div>
@@ -32,8 +39,17 @@ export default function AuthLayout({
           </blockquote>
         </div>
       </div>
-      <div className="lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+      
+      {/* Form Container */}
+      <div className="relative z-10 lg:p-8 flex flex-col justify-center min-h-screen items-center px-4 py-12">
+        {/* Mobile Logo */}
+        <div className="lg:hidden mb-8 w-full flex justify-center drop-shadow-md">
+           <div className="bg-white/95 p-4 rounded-2xl shadow-xl backdrop-blur-md">
+              <Image src="/ithac-logo.png" alt="ITHAC Logo" width={140} height={40} className="object-contain" />
+           </div>
+        </div>
+        
+        <div className="w-full max-w-[400px]">
              {children}
         </div>
       </div>
