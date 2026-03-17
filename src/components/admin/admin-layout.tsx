@@ -11,7 +11,7 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { sidebarCollapsed } = useAdminStore();
+  const { sidebarCollapsed, toggleSidebar } = useAdminStore();
   const { user, isAuthenticated, token } = useAuthStore();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
@@ -45,11 +45,18 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     <div className="h-screen flex bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Mobile Overlay Backdrop */}
+        {!sidebarCollapsed && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={toggleSidebar}
+          />
+        )}
         <Header />
         <main
           className={cn(
-            "flex-1 overflow-auto transition-all duration-300 p-6",
-            sidebarCollapsed ? "ml-16" : "ml-64"
+            "flex-1 overflow-x-hidden overflow-y-auto transition-all duration-300 p-4 md:p-6",
+            sidebarCollapsed ? "md:ml-16" : "md:ml-64"
           )}
         >
           {children}

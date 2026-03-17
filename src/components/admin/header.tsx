@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export function Header() {
   const { adminLogout } = useAuth();
   const { user } = useAuthStore();
-  const { sidebarCollapsed } = useAdminStore();
+  const { sidebarCollapsed, toggleSidebar } = useAdminStore();
 
   const handleLogout = async () => {
     adminLogout.mutate();
@@ -32,10 +32,18 @@ export function Header() {
     <header
       className={cn(
         "bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 transition-all duration-300",
-        sidebarCollapsed ? "ml-16" : "ml-64"
+        sidebarCollapsed ? "md:ml-16" : "md:ml-64"
       )}
     >
       <div className="flex items-center space-x-4 flex-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="md:hidden mr-2 p-2"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
         <div className="relative max-w-md w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input

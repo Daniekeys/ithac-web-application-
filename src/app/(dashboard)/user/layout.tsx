@@ -10,13 +10,16 @@ import { useUserDashboardStore } from "@/store/user-dashboard.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface UserLayoutProps {
   children: React.ReactNode;
 }
 
 export default function UserLayout({ children }: UserLayoutProps) {
-  const { sidebarCollapsed } = useUserDashboardStore();
+  const { sidebarCollapsed, toggleSidebar } = useUserDashboardStore();
   const { isAuthenticated, token } = useAuthStore();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
@@ -57,11 +60,35 @@ export default function UserLayout({ children }: UserLayoutProps) {
       <UserSidebar />
       <main
         className={cn(
-          "flex-1 transition-all duration-300",
-          sidebarCollapsed ? "ml-16" : "ml-64"
+          "flex-1 transition-all duration-300 w-full overflow-x-hidden",
+          // On mobile: 0 margin (overlay style), On desktop: margin applies
+          sidebarCollapsed ? "md:ml-16" : "md:ml-64"
         )}
       >
-        {children}
+        {/* Mobile Hamburger Menu */}
+        <div className="md:hidden flex items-center p-4 bg-white border-b sticky top-0 z-30">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="mr-2 p-2"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <Image src="/ithac-logo.png" alt="ITHAC Logo" width={100} height={32} className="object-contain" />
+        </div>
+
+        {/* Mobile Overlay Backdrop */}
+        {!sidebarCollapsed && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={toggleSidebar}
+          />
+        )}
+
+        <div className="px-4 md:px-0">
+          {children}
+        </div>
       </main>
     </div>
   );
