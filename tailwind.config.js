@@ -8,19 +8,7 @@ module.exports = {
     "./pfp/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	colors: {
-  		primary: '#003B75',
-  		secondary: '#4348C0',
-  		tertiary: '#F76A4E',
-  		stroke: '#D5D5D5',
-  		'faded-text': '#979797',
-  		'feed-color': '#F2F8FF',
-  		'line-color-2': '#AECFF0',
-  		white: '#FFFFFF',
-  		black: '#000000',
-  		transparent: 'transparent',
-  		current: 'currentColor'
-  	},
+  
   	fontFamily: {
   		sans: [
   			'var(--font-poppins)',
@@ -43,7 +31,18 @@ module.exports = {
   		},
   		colors: {
   			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
+				foreground: 'hsl(var(--foreground))',
+					primary: '#003B75',
+  		secondary: '#4348C0',
+  		tertiary: '#F76A4E',
+  		stroke: '#D5D5D5',
+  		'faded-text': '#979797',
+  		'feed-color': '#F2F8FF',
+  		'line-color-2': '#AECFF0',
+  		white: '#FFFFFF',
+  		black: '#000000',
+  		transparent: 'transparent',
+  		current: 'currentColor',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
