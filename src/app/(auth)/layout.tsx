@@ -10,23 +10,24 @@ export default function AuthLayout({
     <div className="relative min-h-screen grid lg:max-w-none lg:grid-cols-2">
       {/* Mobile Creative Background */}
       <div className="absolute inset-0 lg:hidden overflow-hidden bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900">
-        <div className="absolute inset-0 bg-[url('/auth-bg.png')] opacity-20 mix-blend-overlay bg-cover bg-center" />
+        <div className="absolute inset-0 bg-[url('/images/auth-image.jpg')] opacity-20 mix-blend-overlay bg-cover bg-center" />
       </div>
 
       <div className="relative hidden h-full flex-col bg-slate-900 p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-zinc-900" />
         <div className="absolute inset-0 z-10">
             <Image 
-               src="/auth-bg.png" 
+               src="/images/auth-image.jpg" 
                alt="Background" 
                fill
-               className="object-cover opacity-50"
+               className="object-cover"
             />
+            {/* Dark Overlay for better text and logo visibility */}
+            <div className="absolute inset-0 bg-black/60" />
         </div>
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Link href="/">
-             <div className="flex items-center space-x-2 bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
-                <Image src="/ithac-logo.png" alt="ITHAC Logo" width={140} height={40} className="object-contain brightness-0 invert" />
+             <div className="flex items-center space-x-2 bg-white p-2 rounded-xl  border border-white/20">
+                <Image src="/ithac-logo.png" alt="ITHAC Logo" width={140} height={40} className="object-contain " />
              </div>
           </Link>
         </div>
