@@ -23,9 +23,9 @@ export function AuthFormWrapper({
   return (
     <div className={cn("mx-auto w-full max-w-md space-y-6", className)}>
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <h1 className="text-3xl font-bold text-white lg:text-black">{title}</h1>
         {description && (
-          <p className="text-muted-foreground">{description}</p>
+          <p className="text-muted-foreground text-white lg:text-black">{description}</p>
         )}
       </div>
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -39,7 +39,7 @@ export function AuthFormWrapper({
           {footerLink && footerLinkText && (
             <Link
               href={footerLink}
-              className="font-medium text-primary underline-offset-4 hover:underline"
+              className="font-medium text-primary underline-offset-4 hover:underline text-white lg:text-black"
             >
               {footerLinkText}
             </Link>

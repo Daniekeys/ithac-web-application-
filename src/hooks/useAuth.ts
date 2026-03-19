@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { courseService } from "@/services/course.service";
+import { AxiosError } from "axios";
 
 // Define types based on Postman (approximate)
 interface LoginPayload {
@@ -125,9 +126,15 @@ export const useAuth = () => {
        }
     },
     onError: (error: Error) => {
+        const axiosError = error as AxiosError<{ error?: string; message?: string }>;
+        const serverMessage =
+            axiosError.response?.data?.error ||
+            axiosError.response?.data?.message ||
+            error.message ||
+            "Please try again";
         toast({
             title: "Registration failed",
-            description: error.message || "Please try again",
+            description: serverMessage,
             variant: "destructive",
         });
     }
