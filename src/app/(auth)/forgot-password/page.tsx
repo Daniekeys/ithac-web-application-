@@ -18,7 +18,9 @@ import { AuthFormWrapper } from "@/components/auth/auth-wrapper";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+
+const FORGOT_EMAIL_KEY = "forgotPasswordEmail";
 
 // Schema for Step 1: Request OTP
 const requestSchema = z.object({
@@ -47,11 +49,11 @@ function ForgotPasswordContent() {
   
   const isVerifyStep = step === "verify";
 
-  // Form 1: Request OTP
+  // Form 1: Request OTP — pre-fill from localStorage if available
   const requestForm = useForm<RequestFormValues>({
       resolver: zodResolver(requestSchema),
       defaultValues: {
-          email: "",
+          email: (typeof window !== "undefined" && localStorage.getItem(FORGOT_EMAIL_KEY)) || "",
       }
   });
 
@@ -65,39 +67,53 @@ function ForgotPasswordContent() {
       }
   });
 
-  const onRequestSubmit = (data: RequestFormValues) => {
-      forgotPasswordRequest.mutate(data);
-  };
-
-  const onResetSubmit = (data: ResetFormValues) => {
-      if (!emailParam) {
-          // Fallback or error if email lost?
-          // We need email for resetPassword payload (see useAuth).
-          // Assuming we need email. If Postman said we need email, we need it.
-          // User has to re-enter email? 
-          // For now assume passed in URL. If not, maybe add hidden field or ask user again.
-          // Let's rely on URL for now.
-          return; 
+  // Sync localStorage email into form on mount (handles SSR hydration gap)
+  useEffect(() => {
+      const saved = localStorage.getItem(FORGOT_EMAIL_KEY);
+      if (saved && !requestForm.getValues("email")) {
+          requestForm.setValue("email", saved);
       }
-      resetPassword.mutate({
-          email: emailParam,
-          token: data.token,
-          password: data.password
+  }, [requestForm]);
+
+  const onRequestSubmit = (data: RequestFormValues) => {
+      forgotPasswordRequest.mutate(data, {
+          onSuccess: () => {
+              // Persist the email so it survives a refresh on the verify step
+              localStorage.setItem(FORGOT_EMAIL_KEY, data.email);
+          },
       });
   };
 
+  const onResetSubmit = (data: ResetFormValues) => {
+      const email = emailParam || localStorage.getItem(FORGOT_EMAIL_KEY) || "";
+      if (!email) {
+          return;
+      }
+      resetPassword.mutate(
+          { email, token: data.token, password: data.password },
+          {
+              onSuccess: () => {
+                  // Clear the persisted email once password is successfully reset
+                  localStorage.removeItem(FORGOT_EMAIL_KEY);
+              },
+          }
+      );
+  };
+
+
   if (isVerifyStep) {
+      const resolvedEmail = emailParam || (typeof window !== "undefined" ? localStorage.getItem(FORGOT_EMAIL_KEY) : null) || "";
       return (
         <AuthFormWrapper
           title="Reset Password"
-          description={`Enter the OTP sent to ${emailParam} and your new password`}
+          description={`Enter the OTP sent to ${resolvedEmail || "your email"} and your new password`}
           footerText="Remember your password?"
           footerLink="/login"
           footerLinkText="Sign in"
         >
           <Form {...resetForm}>
             <form onSubmit={resetForm.handleSubmit(onResetSubmit)} className="space-y-4">
-               {!emailParam && <div className="text-red-500 text-sm">Email missing from link. Please start over.</div>}
+               {!resolvedEmail && <div className="text-red-500 text-sm">Email missing. Please start over.</div>}
               <FormField
                 control={resetForm.control}
                 name="token"
@@ -137,7 +153,7 @@ function ForgotPasswordContent() {
                   </FormItem>
                 )}
               />
-              <Button className="w-full" type="submit" disabled={resetPassword.isPending || !emailParam}>
+              <Button className="w-full" type="submit" disabled={resetPassword.isPending || !resolvedEmail}>
                 {resetPassword.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
