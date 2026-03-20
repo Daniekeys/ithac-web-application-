@@ -6,6 +6,7 @@ export interface User {
   lastname?: string;
   nickname?: string;
   image?: string | null;
+  headline?: string;
   profession?: string;
   skill?: string;
   gender?: string | null;
@@ -42,8 +43,9 @@ export interface PasswordUpdateSettings {
 }
 
 export interface UserProfileUpdate {
-  name?: string;
-  nickname?: string;
-  profession?: string;
+  gender?: string;
+  firstname?: string;
+  lastname?: string;
   image?: string;
+  headline?: string;
 }

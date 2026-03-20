@@ -1,14 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/services/user.service";
+import { useAuthStore } from "@/store/auth.store";
 import { toast } from "@/hooks/use-toast";
 import { PasswordUpdateSettings, UserProfileUpdate } from "@/types/auth";
+import { User } from "@/types/auth";
 
 export const useUpdateProfile = () => {
     const queryClient = useQueryClient();
+    const setUser = useAuthStore((state) => state.setUser);
+    const token = useAuthStore((state) => state.token);
 
     return useMutation({
         mutationFn: (data: UserProfileUpdate) => userService.updateProfile(data),
-        onSuccess: () => {
+        onSuccess: (freshUser: User) => {
+            // Sync the fresh server data into the auth store so every
+            // component reading useAuthStore gets the latest values
+            if (token) {
+                setUser(freshUser, token);
+            }
+            // Bust any cached profile queries
             queryClient.invalidateQueries({ queryKey: ["user-profile"] });
             toast({
                 title: "Success",
