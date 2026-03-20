@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = "https://moro.qzz.io/v1";
+const API_BASE_URL = "https://ithac.onrender.com/v1";
 
 export async function POST(request: NextRequest) {
   try {

@@ -19,16 +19,25 @@ export class UserService {
       data
     );
     const updatedUser = handleApiResponse(response);
-    
-    // Update local store with new data
-    const currentUser = useAuthStore.getState().user;
+
     const token = useAuthStore.getState().token;
-    
-    if (currentUser && token) {
+
+    // Immediately reflect the PUT response in the store
+    if (token) {
       useAuthStore.getState().setUser(updatedUser, token);
     }
-    
-    return updatedUser;
+
+    // Refetch from server to ensure the store has the authoritative fresh data
+    try {
+      const freshUser = await this.getProfile();
+      if (token) {
+        useAuthStore.getState().setUser(freshUser, token);
+      }
+      return freshUser;
+    } catch {
+      // If the refetch fails, the PUT response data already synced above is good enough
+      return updatedUser;
+    }
   }
 
   // Update password

@@ -51,9 +51,9 @@ export default function UserDashboard() {
   }
 
   const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'NGN',
     }).format(amount);
   };
 
@@ -67,6 +67,7 @@ export default function UserDashboard() {
   };
 
   const CourseCard = ({ course, showProgress = false }: { course: Course, showProgress?: boolean }) => (
+
     <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
       <div className="aspect-video relative bg-gray-200 rounded-t-lg overflow-hidden">
         {course.image && (
@@ -127,9 +128,9 @@ export default function UserDashboard() {
         )}
         
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-blue-600">
+          {/* <span className="text-lg font-bold text-blue-600">
             {formatPrice(course.amount)}
-          </span>
+          </span> */}
           <Button size="sm" asChild>
             <Link href={`/user/courses/${course._id}`}>
               View Course
@@ -166,7 +167,7 @@ export default function UserDashboard() {
                 Welcome back, {user?.name?.split(' ')[0] || 'Student'}!
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="lg:flex items-center space-x-4 hidden ">
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/user/cart">
                   <ShoppingCart className="h-5 w-5" />
