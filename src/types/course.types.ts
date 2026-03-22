@@ -25,6 +25,7 @@ export interface Course {
   createdAt: string;
   updatedAt: string;
   __v?: number;
+  Subscribed?: boolean;
 }
 
 export interface Contributor {

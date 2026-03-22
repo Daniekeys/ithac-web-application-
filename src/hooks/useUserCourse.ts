@@ -250,3 +250,10 @@ export const usePaymentHistory = () => {
     queryFn: () => userCourseService.getPaymentHistory(),
   });
 };
+
+export const useSubscribedCourses = (page = 1, size = 10) => {
+  return useQuery({
+    queryKey: ["subscribed-courses", page, size],
+    queryFn: () => userCourseService.getSubscribedCourses(page, size),
+  });
+};

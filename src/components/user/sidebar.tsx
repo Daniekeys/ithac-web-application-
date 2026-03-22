@@ -104,12 +104,12 @@ export function UserSidebar() {
         {!sidebarCollapsed ? (
           <div className="flex flex-col space-y-3">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold flex-shrink-0">
-                {user?.name?.charAt(0) || "U"}
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold flex-shrink-0 capitalize">
+                {user?.firstname?.charAt(0) || "U"}
               </div>
               <div className="flex flex-col truncate">
-                <span className="text-sm font-medium text-gray-900 truncate">
-                  {user?.name || "Student"}
+                <span className="text-sm font-medium text-gray-900 truncate capitalize">
+                  {user?.firstname + " " + user?.lastname || "Student"}
                 </span>
                 <span className="text-xs text-gray-500 truncate">
                   {user?.email || "student@example.com"}

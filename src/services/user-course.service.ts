@@ -133,5 +133,13 @@ export const userCourseService = {
   getPaymentHistory: async (): Promise<any> => {
       const response = await httpClient.get("/api/user/payment");
       return response.data;
+  },
+
+  // Subscribed (paid) courses
+  getSubscribedCourses: async (page = 1, size = 10): Promise<CoursesResponse> => {
+    const response = await httpClient.get(
+      `/api/user/courses/subscribed?page=${page}&size=${size}`
+    );
+    return response.data;
   }
 };
