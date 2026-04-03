@@ -22,8 +22,9 @@ import { CreateLessonData } from "@/types/course.types";
 import { useCreateLesson, useUpdateLesson } from "@/hooks/useCourse";
 import { useState } from "react";
 import {
-  AdvancedVideoUpload,
-  CloudinaryUploadResponse,
+  S3FileUploader,
+  S3UploadResponse,
+  CloudinaryImageUpload,
 } from "@/components/media";
 
 const lessonSchema = z.object({
@@ -65,7 +66,7 @@ export function LessonForm({
 }: LessonFormProps) {
   const [newResource, setNewResource] = useState({ filename: "", path: "" });
   const [uploadedVideo, setUploadedVideo] =
-    useState<CloudinaryUploadResponse | null>(null);
+    useState<S3UploadResponse | null>(null);
 
   const createLesson = useCreateLesson();
   const updateLesson = useUpdateLesson();
@@ -114,25 +115,22 @@ export function LessonForm({
   };
 
   // Handle video upload completion
-  const handleVideoUpload = (data: CloudinaryUploadResponse) => {
+  const handleVideoUpload = (data: S3UploadResponse | null) => {
+    if (!data) return;
     setUploadedVideo(data);
 
     // Auto-populate form fields from Cloudinary response
     form.setValue("url", data.secure_url);
-    form.setValue("public_id", data.public_id);
-    form.setValue("asset_id", data.asset_id);
+    form.setValue("public_id", crypto.randomUUID());
+    form.setValue("asset_id", crypto.randomUUID());
 
-    // Set duration if available
+    // Set duration if available, else random between 60 and 3600
     if (data.duration) {
       form.setValue("duration", Math.round(data.duration));
+    } else {
+      const randomDuration = Math.floor(Math.random() * (3600 - 60) + 60);
+      form.setValue("duration", randomDuration);
     }
-
-    // Generate thumbnail URL from Cloudinary
-    const thumbnailUrl = data.secure_url.replace(
-      /\.(mp4|mov|avi|mkv|webm)$/,
-      ".jpg"
-    );
-    form.setValue("thumbnail", thumbnailUrl);
 
     // Auto-generate title from original filename if not set
     if (data.original_filename && !form.getValues("title")) {
@@ -348,13 +346,15 @@ export function LessonForm({
             </CardHeader>
             <CardContent className="space-y-4">
               {!uploadedVideo ? (
-                <AdvancedVideoUpload
+                <S3FileUploader
+                  folder="courses/videos"
+                  previewType="video"
                   onUploadComplete={handleVideoUpload}
                   onUploadError={handleVideoUploadError}
                   maxSize={500} // 500MB for lesson videos
                   title="Upload Lesson Video"
                   description="Upload the main video content for this lesson. Video metadata will auto-populate the form fields below."
-                  acceptedFormats={[".mp4", ".mov", ".avi", ".mkv", ".webm"]}
+                  accept="video/*"
                 />
               ) : (
                 <div className="space-y-4">
@@ -468,18 +468,19 @@ export function LessonForm({
                   <FormItem>
                     <FormLabel>Thumbnail URL *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Upload a video to auto-generate thumbnail URL"
-                        {...field}
-                        readOnly={!!uploadedVideo}
-                        className={uploadedVideo ? "bg-gray-50" : ""}
-                      />
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="URL or use the uploader below"
+                          {...field}
+                        />
+                        <CloudinaryImageUpload
+                          title="Upload Thumbnail Image"
+                          description="Or upload an image to use as a thumbnail"
+                          value={field.value}
+                          onUploadComplete={(url) => form.setValue("thumbnail", url)}
+                        />
+                      </div>
                     </FormControl>
-                    {uploadedVideo && (
-                      <FormDescription className="text-green-600">
-                        ✓ Auto-generated from video upload
-                      </FormDescription>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
