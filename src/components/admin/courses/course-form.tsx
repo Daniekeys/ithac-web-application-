@@ -24,6 +24,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import { S3FileUploader, CloudinaryImageUpload } from "@/components/media";
 import { CreateCourseData } from "@/types/course.types";
 import { useAdminContributors } from "@/hooks/useContributor";
 import { useState } from "react";
@@ -351,11 +352,13 @@ export function CourseForm({
                 name="image"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Course Image URL *</FormLabel>
+                    <FormLabel>Course Image *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        {...field}
+                      <CloudinaryImageUpload
+                        title="Upload Course Image"
+                        description="Main high-quality image for the course"
+                        value={field.value}
+                        onUploadComplete={(url) => field.onChange(url)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -368,11 +371,13 @@ export function CourseForm({
                 name="thumbnail"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Thumbnail URL</FormLabel>
+                    <FormLabel>Thumbnail</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="https://example.com/thumbnail.jpg"
-                        {...field}
+                      <CloudinaryImageUpload
+                        title="Upload Thumbnail"
+                        description="Optional smaller image for listings"
+                        value={field.value}
+                        onUploadComplete={(url) => field.onChange(url)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -385,11 +390,16 @@ export function CourseForm({
                 name="introductory_video"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Intro Video URL *</FormLabel>
+                    <FormLabel>Intro Video *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="https://example.com/video.mp4"
-                        {...field}
+                      <S3FileUploader
+                        folder="courses/videos"
+                        accept="video/*"
+                        previewType="video"
+                        title="Upload Intro Video"
+                        description="Main promotional video for the course"
+                        value={field.value}
+                        onUploadComplete={(data) => field.onChange(data?.secure_url || "")}
                       />
                     </FormControl>
                     <FormMessage />

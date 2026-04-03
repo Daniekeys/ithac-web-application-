@@ -82,6 +82,14 @@ export default function CartPage() {
         */
         
         if (response.success && response.data) {
+           if (response.action === "FREE") {
+             setIsProcessing(false);
+             alert("Checkout successful! Add to your account.");
+             refetch();
+             window.location.href = "/user/payments";
+             return;
+           }
+
            const { amount, transaction_id } = response.data;
            // We need email. Usually in checkout response or auth.
            // If backend doesn't return email in checkout response top level, we might need to fetch it or check if it's in the response.

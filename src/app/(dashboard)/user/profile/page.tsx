@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/auth.store";
-import { useUpdateProfile, useUpdatePassword } from "@/hooks/useUser";
+import { useUpdateProfile, useUpdatePassword, useProfile } from "@/hooks/useUser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +74,8 @@ const passwordSchema = z
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function UserProfilePage() {
   const user = useAuthStore((state) => state.user);
+  const { isLoading: isLoadingProfile } = useProfile();
+  
   const updateProfile = useUpdateProfile();
   const updatePassword = useUpdatePassword();
 
@@ -172,6 +174,14 @@ export default function UserProfilePage() {
           passwordForm.reset();
         },
       }
+    );
+  }
+
+  if (isLoadingProfile && !user) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const response = await fetch(`${API_BASE_URL}/user/password`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -38,3 +38,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
