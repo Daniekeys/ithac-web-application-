@@ -202,7 +202,7 @@ export function LessonDataTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm">{lesson.views.length}</span>
+                  <span className="text-sm">{Array.isArray(lesson.views) ? lesson.views.length : lesson.views}</span>
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>

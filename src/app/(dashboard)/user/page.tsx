@@ -105,7 +105,7 @@ export default function UserDashboard() {
           </div>
           <div className="flex items-center">
             <Users className="h-4 w-4 mr-1" />
-            {course.enrolled_count || 0}
+            {course.enrolled || 0}
           </div>
           {(course.rating || 0) > 0 && (
             <div className="flex items-center">

@@ -290,7 +290,7 @@ export default function AdminCoursesPage() {
                           </span>
                           <span className="flex items-center">
                             <Users className="h-3 w-3 mr-1" />
-                            {course.enrolled_count || 0} students
+                            {course.enrolled || 0} students
                           </span>
                           {course.rating && (
                             <span className="flex items-center">
@@ -307,7 +307,7 @@ export default function AdminCoursesPage() {
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/dashboard/user/courses/${course._id}`}>
+                          <Link href={`/user/courses/${course._id}`}>
                             <Eye className="h-4 w-4" />
                           </Link>
                         </Button>

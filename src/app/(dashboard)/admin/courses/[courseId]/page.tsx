@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Play } from "lucide-react";
+import { ArrowLeft, BookOpen, Play, Star, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useCourse } from "@/hooks/useCourse";
+import { useCourse, useCourseReviews } from "@/hooks/useCourse";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-import { Course, Lesson } from "@/types/course.types";
+import { Course, Lesson, Review } from "@/types/course.types";
 
 interface CourseDetailPageProps {
   params: {
@@ -18,6 +18,18 @@ interface CourseDetailPageProps {
 
 export default function CourseDetailPage({ params }: CourseDetailPageProps) {
   const { data: courseData, isLoading } = useCourse(params.courseId);
+  const { data: reviewsData } = useCourseReviews(params.courseId);
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-4 w-4 ${
+          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+        }`}
+      />
+    ));
+  };
 
 
 
@@ -325,6 +337,68 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                       </Link>
                     </div>
                   )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Course Reviews</CardTitle>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <span className="font-semibold text-gray-900">{course?.rating || 0}</span>
+                  <span>({reviewsData?.total || 0} reviews)</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {reviewsData?.data && reviewsData.data.length > 0 ? (
+                <div className="space-y-4">
+                  {reviewsData.data.slice(0, 5).map((review: Review) => (
+                    <div key={review._id} className="border-b last:border-0 pb-4 last:pb-0">
+                      <div className="flex items-start space-x-3">
+                        <div className="relative h-10 w-10 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
+                          {review._user?.image ? (
+                           <Image
+                             src={review._user.image}
+                             alt={review._user?.fullname || "User avatar"}
+                             fill
+                             className="object-cover"
+                           />
+                          ) : (
+                           <User className="h-5 w-5 text-gray-500" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-medium text-gray-900">
+                              {review._user?.fullname || "Anonymous"}
+                            </h4>
+                            <div className="flex items-center space-x-1">
+                              {renderStars(review.rating)}
+                            </div>
+                          </div>
+                          <p className="text-gray-700 text-sm">{review.body}</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {reviewsData.data.length > 5 && (
+                    <div className="text-center pt-2">
+                      <Button variant="outline" size="sm">
+                        View All Reviews
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <Star className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                  <p className="text-gray-500">No reviews yet for this course.</p>
                 </div>
               )}
             </CardContent>

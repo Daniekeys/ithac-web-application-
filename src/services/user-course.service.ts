@@ -97,8 +97,8 @@ export const userCourseService = {
   },
 
   // Lessons & Reviews
-  watchLesson: async (courseId: string, lessonId: string): Promise<LessonWatchResponse> => {
-    const response = await httpClient.get(`/api/user/lesson/${courseId}/${lessonId}`);
+  watchLesson: async (lessonId: string): Promise<LessonWatchResponse> => {
+    const response = await httpClient.get(`/api/user/lesson/${lessonId}`);
     return response.data;
   },
 

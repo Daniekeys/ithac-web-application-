@@ -22,7 +22,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const body = await req.json();
 
     const backendResponse = await fetch(
-      `${ENV.API_URL}/user/review/${params.id}`,
+      `${ENV.API_URL}/review/${params.id}`,
       {
         method: "POST",
         headers: {

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { ENV } from "@/utils/env";
 
 interface RouteParams {
@@ -17,6 +19,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       }
     );
 

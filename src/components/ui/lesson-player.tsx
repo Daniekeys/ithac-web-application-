@@ -63,20 +63,25 @@ export default function LessonPlayer({
     data: lessonData,
     isLoading,
     isError,
-  } = useUserWatchLesson(courseId, lessonId);
+  } = useUserWatchLesson(lessonId);
   const addComment = useAddLessonComment();
 
   const lesson: Lesson | undefined = lessonData?.data;
+  const course = lessonData?.course;
+  const siblingLessons = lessonData?.lesson || [];
   const comments: LessonComment[] = lessonData?.comments || [];
+  console.log("lesson", lessonData?.data?.url);
 
-  useEffect(() => {
-    if (lesson) {
-      setDuration(lesson.duration * 60); // Convert minutes to seconds
-    }
-  }, [lesson]);
+  const handleLessonComplete = () => {
+    if (onLessonComplete) onLessonComplete();
+  };
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
+  const handleNext = () => {
+    if (onNextLesson) onNextLesson();
+  };
+
+  const handlePrevious = () => {
+    if (onPreviousLesson) onPreviousLesson();
   };
 
   const handleMute = () => {
@@ -155,116 +160,17 @@ export default function LessonPlayer({
         } bg-black rounded-lg overflow-hidden`}
       >
         {/* Video Element Placeholder */}
-        <div className="relative w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-          {lesson.thumbnail && (
-            <div
-              className="absolute inset-0 bg-cover bg-center opacity-50"
-              style={{ backgroundImage: `url(${lesson.thumbnail})` }}
-            />
-          )}
-
-          {/* Play Button Overlay */}
-          {!isPlaying && (
-            <Button
-              size="lg"
-              className="absolute inset-0 w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 m-auto"
-              onClick={handlePlayPause}
-            >
-              <Play className="h-8 w-8 text-white" />
-            </Button>
-          )}
-
-          {/* Video URL display (for demo) */}
-          <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded text-sm">
-            Video: {lesson.url}
-          </div>
-
-          {/* Controls */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="w-full h-2 bg-white/20 rounded-full cursor-pointer">
-                <div
-                  className="h-full bg-blue-600 rounded-full transition-all"
-                  style={{ width: `${getProgress()}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Control Buttons */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onPreviousLesson}
-                  disabled={!hasPreviousLesson}
-                  className="text-white hover:bg-white/20"
-                >
-                  <SkipBack className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handlePlayPause}
-                  className="text-white hover:bg-white/20"
-                >
-                  {isPlaying ? (
-                    <Pause className="h-5 w-5" />
-                  ) : (
-                    <Play className="h-5 w-5" />
-                  )}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onNextLesson}
-                  disabled={!hasNextLesson}
-                  className="text-white hover:bg-white/20"
-                >
-                  <SkipForward className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleMute}
-                  className="text-white hover:bg-white/20"
-                >
-                  {isMuted ? (
-                    <VolumeX className="h-5 w-5" />
-                  ) : (
-                    <Volume2 className="h-5 w-5" />
-                  )}
-                </Button>
-
-                <span className="text-white text-sm">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/20"
-                >
-                  <Settings className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleFullscreen}
-                  className="text-white hover:bg-white/20"
-                >
-                  <Maximize className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-          </div>
+        <div className="relative w-full h-full bg-black flex items-center justify-center">
+          <video 
+            src={lessonData?.data?.url} 
+            poster={lessonData?.data?.thumbnail} 
+            controls 
+            className="w-full h-full object-contain"
+            onEnded={handleLessonComplete}
+            controlsList="nodownload"
+          >
+            Your browser does not support the video tag.
+          </video>
         </div>
       </div>
 
@@ -291,7 +197,7 @@ export default function LessonPlayer({
             <p className="text-gray-600 mb-4">{lesson.description}</p>
 
             {/* Progress Button */}
-            <Button onClick={onLessonComplete} className="mb-4">
+            <Button onClick={handleLessonComplete} className="mb-4">
               <CheckCircle className="h-4 w-4 mr-2" />
               Mark as Complete
             </Button>
@@ -482,7 +388,9 @@ export default function LessonPlayer({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Views</span>
-                <span className="font-medium">{lesson.views?.length || 0}</span>
+                <span className="font-medium">
+                  {Array.isArray(lesson.views) ? lesson.views.length : (lesson.views ?? 0)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Position</span>
@@ -506,7 +414,7 @@ export default function LessonPlayer({
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={onPreviousLesson}
+                onClick={handlePrevious}
                 disabled={!hasPreviousLesson}
               >
                 <SkipBack className="h-4 w-4 mr-2" />
@@ -515,7 +423,7 @@ export default function LessonPlayer({
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={onNextLesson}
+                onClick={handleNext}
                 disabled={!hasNextLesson}
               >
                 Next Lesson

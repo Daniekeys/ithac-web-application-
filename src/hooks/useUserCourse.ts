@@ -156,12 +156,11 @@ export const useRemoveFromSaved = () => {
   });
 };
 
-// Lessons & Reviews
-export const useUserWatchLesson = (courseId: string, lessonId: string) => {
+export const useUserWatchLesson = (lessonId: string) => {
   return useQuery({
-    queryKey: ["lesson", courseId, lessonId],
-    queryFn: () => userCourseService.watchLesson(courseId, lessonId),
-    enabled: !!(courseId && lessonId),
+    queryKey: ["lesson", lessonId],
+    queryFn: () => userCourseService.watchLesson(lessonId),
+    enabled: !!lessonId,
   });
 };
 
