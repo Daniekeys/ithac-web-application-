@@ -19,13 +19,14 @@ export interface Course {
   visibility?: "public" | "private";
   estimated_duration?: number;
   completion_rule?: string;
-  enrolled_count?: number;
+  enrolled?: number;
   save_count?: number;
   review_count?: number;
   createdAt: string;
   updatedAt: string;
   __v?: number;
   Subscribed?: boolean;
+  subscribed?: boolean;
 }
 
 export interface Contributor {
@@ -82,9 +83,12 @@ export interface Lesson {
   resources?: Resource[];
   group?: string;
   position: number;
-  views: string[];
+  views: string[] | number;
   createdAt: string;
   updatedAt: string;
+  subscribed?: boolean;
+  view?: boolean;
+  watch_time?: number;
 }
 
 export interface Resource {
@@ -100,10 +104,10 @@ export interface CreateLessonData {
   thumbnail: string;
   duration: number;
   free: boolean;
-  transcript?: string;
+  transcript?: string | null;
   description: string;
-  resources?: Resource[];
-  group?: string;
+  resources?: Resource[] | null;
+  group?: string | null;
   position?: number;
 }
 
@@ -167,14 +171,22 @@ export interface CartResponse {
 // Review related types
 export interface Review {
   _id: string;
-  user: {
+  user?: {
     _id: string;
     name: string;
     avatar?: string;
   };
-  course: string;
+  _user?: {
+    _id: string;
+    fullname: string;
+    image?: string;
+  };
+  course?: string;
+  _course?: string;
   rating: number;
   body: string;
+  show?: boolean;
+  positive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -216,6 +228,8 @@ export interface LessonWatchResponse {
   success: boolean;
   status: string;
   data: Lesson;
+  course?: Course;
+  lesson?: Lesson[];
   comments?: LessonComment[];
 }
 

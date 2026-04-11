@@ -33,7 +33,7 @@ export default function LessonPage() {
         {/* Back to Course */}
         <div className="mb-6">
           <Button variant="ghost" asChild>
-            <Link href={`/dashboard/user/courses/${courseId}`}>
+            <Link href={`/user/courses/${courseId}`}>
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Course
             </Link>

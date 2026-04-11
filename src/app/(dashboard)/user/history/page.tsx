@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -181,11 +183,11 @@ export default function LearningHistoryPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {filtered.map((course) => (
-                  <Card
-                    key={course._id}
-                    className="overflow-hidden hover:shadow-lg transition-shadow group"
-                  >
-                    {/* Thumbnail */}
+                  <Link href={`/user/courses/${course._id}`} key={course._id}>
+                    <Card
+                      className="overflow-hidden hover:shadow-lg transition-shadow group h-full cursor-pointer"
+                    >
+                      {/* Thumbnail */}
                     <div className="relative h-40 bg-gray-200">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -278,6 +280,7 @@ export default function LearningHistoryPage() {
                       </div>
                     </CardContent>
                   </Card>
+                </Link>
                 ))}
               </div>
             )}

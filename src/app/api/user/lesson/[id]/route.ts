@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ENV } from "@/utils/env";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface RouteParams {
   params: {
-    courseId: string;
-    lessonId: string;
+    id: string;
   };
 }
 
-// Add comment to lesson
-export async function POST(req: NextRequest, { params }: RouteParams) {
+// Watch a lesson details
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const token = req.cookies.get("token")?.value;
 
@@ -20,17 +22,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const body = await req.json();
-
     const backendResponse = await fetch(
-      `${ENV.API_URL}/user/lesson/${params.courseId}/${params.lessonId}/comment`,
+      `${ENV.API_URL}/user/lesson/${params.id}`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        cache: "no-store",
       }
     );
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           success: false,
-          error: data.error || "Failed to add comment",
+          error: data.error || "Failed to fetch lesson",
         },
         { status: backendResponse.status }
       );
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Add lesson comment error:", error);
+    console.error("Watch lesson error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

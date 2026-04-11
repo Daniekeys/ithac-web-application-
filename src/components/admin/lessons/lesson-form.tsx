@@ -35,7 +35,7 @@ const lessonSchema = z.object({
   thumbnail: z.string().url("Valid thumbnail URL is required"),
   duration: z.number().min(1, "Duration must be greater than 0"),
   free: z.boolean(),
-  transcript: z.string().optional(),
+  transcript: z.string().nullable().optional(),
   description: z.string().min(1, "Description is required"),
   resources: z
     .array(
@@ -44,8 +44,9 @@ const lessonSchema = z.object({
         path: z.string().url("Valid resource URL is required"),
       })
     )
+    .nullable()
     .optional(),
-  group: z.string().optional(),
+  group: z.string().nullable().optional(),
   position: z.number().optional(),
 });
 
@@ -122,7 +123,13 @@ export function LessonForm({
     // Auto-populate form fields from Cloudinary response
     form.setValue("url", data.secure_url);
     form.setValue("public_id", crypto.randomUUID());
-    form.setValue("asset_id", crypto.randomUUID());
+    
+    try {
+      const urlObj = new URL(data.secure_url);
+      form.setValue("asset_id", urlObj.pathname);
+    } catch (e) {
+      form.setValue("asset_id", crypto.randomUUID());
+    }
 
     // Set duration if available, else random between 60 and 3600
     if (data.duration) {
@@ -158,16 +165,23 @@ export function LessonForm({
 
   const onSubmit = async (data: CreateLessonData) => {
     try {
+      const payload: CreateLessonData = {
+        ...data,
+        group: data.group || null,
+        transcript: data.transcript || null,
+        resources: data.resources && data.resources.length > 0 ? data.resources : null,
+      };
+
       if (lessonId) {
         await updateLesson.mutateAsync({
           courseId,
           lessonId,
-          lessonData: data,
+          lessonData: payload,
         });
       } else {
         await createLesson.mutateAsync({
           courseId,
-          lessonData: data,
+          lessonData: payload,
         });
       }
       onSuccess();
@@ -304,6 +318,7 @@ export function LessonForm({
                       <Input
                         placeholder="Optional group identifier"
                         {...field}
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormDescription>
@@ -545,6 +560,7 @@ export function LessonForm({
                         placeholder="Optional lesson transcript"
                         rows={3}
                         {...field}
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormMessage />

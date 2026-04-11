@@ -54,7 +54,7 @@ export default function CourseDetailPage() {
   const createReview = useCreateReview();
 
   const course: Course | undefined = courseData?.data;
-  const lessons: Lesson[] = courseData?.lessons || [];
+  const lessons: Lesson[] = (courseData?.data?.lessons as Lesson[]) || (courseData?.lessons as Lesson[]) || [];
 
   const isSaved = savedCoursesData?.data?.some(
     (savedCourse: Course) => savedCourse._id === courseId
@@ -177,7 +177,7 @@ export default function CourseDetailPage() {
             </Link>
             <ChevronRight className="h-4 w-4" />
             <Link
-              href="/dashboard/user/courses"
+              href="/user/courses"
               className="hover:text-blue-600"
             >
               Courses
@@ -192,26 +192,36 @@ export default function CourseDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Course Header */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              {/* Hero Image/Video */}
-              <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-600 to-purple-600">
-                {course.image && (
-                  <Image
-                    src={course.image}
-                    alt={course.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                  />
-                )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <Button
-                    size="lg"
-                    className="bg-white/20 hover:bg-white/30 text-white"
+              <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-600 to-purple-600 overflow-hidden">
+                {course.introductory_video ? (
+                  <video
+                    src={course.introductory_video}
+                    poster={course.thumbnail || course.image}
+                    controls
+                    className="w-full h-full object-cover"
                   >
-                    <Play className="h-6 w-6 mr-2" />
-                    Preview Course
-                  </Button>
-                </div>
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <>
+                    <Image
+                      src={course.thumbnail || course.image || "/images/image_placeholder.jpg"}
+                      alt={course.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 66vw"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <Button
+                        size="lg"
+                        className="bg-white/20 hover:bg-white/30 text-white"
+                      >
+                        <Play className="h-6 w-6 mr-2" />
+                        Preview Course
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="p-6">
@@ -249,7 +259,7 @@ export default function CourseDetailPage() {
                   </div>
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1" />
-                    {course.enrolled_count || 0} students
+                    {course.enrolled || 0} students
                   </div>
                   <div className="flex items-center">
                     <BookOpen className="h-4 w-4 mr-1" />
@@ -348,22 +358,35 @@ export default function CourseDetailPage() {
                             className="border rounded-lg p-4 hover:bg-gray-50"
                           >
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
+                              <div className="flex items-center space-x-3 sm:space-x-4">
                                 <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
                                   {index + 1}
                                 </div>
+                                <div className="relative w-20 h-14 sm:w-28 sm:h-16 rounded overflow-hidden shadow-sm flex-shrink-0 bg-gray-100">
+                                  <Image
+                                    src={lesson.thumbnail || "/images/image_placeholder.jpg"}
+                                    alt={lesson.title}
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 640px) 80px, 112px"
+                                  />
+                                </div>
                                 <div>
-                                  <h4 className="font-medium text-gray-900">
+                                  <h4 className="font-medium text-gray-900 line-clamp-1">
                                     {lesson.title}
                                   </h4>
-                                  <p className="text-sm text-gray-600">
-                                    {lesson.description}
-                                  </p>
+                                  {lesson.description && (
+                                    <p className="text-sm text-gray-600 line-clamp-1">
+                                      {lesson.description}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
-                              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                <Clock className="h-4 w-4" />
-                                {lesson.duration}m
+                              <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                <div className="flex items-center space-x-1">
+                                  <Clock className="h-4 w-4" />
+                                  <span>{lesson.duration}m</span>
+                                </div>
                                 {lesson.free && (
                                   <Badge
                                     variant="outline"
@@ -372,6 +395,12 @@ export default function CourseDetailPage() {
                                     Free
                                   </Badge>
                                 )}
+                                <Button size="sm" asChild>
+                                  <Link href={`/user/courses/${course._id}/lessons/${lesson._id}`}>
+                                    <Play className="h-4 w-4 mr-1" />
+                                    Watch Lesson
+                                  </Link>
+                                </Button>
                               </div>
                             </div>
                           </div>
@@ -430,6 +459,18 @@ export default function CourseDetailPage() {
                     </Card>
 
                     {/* Reviews List */}
+                    {reviewsData && reviewsData.total > 0 && (
+                      <div className="flex items-center space-x-6 p-4 bg-gray-50 rounded-lg mb-6">
+                        <div className="flex flex-col items-center">
+                          <span className="text-3xl font-bold text-gray-900">{reviewsData.total}</span>
+                          <span className="text-sm text-gray-500">Total Reviews</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <span className="text-3xl font-bold text-gray-900">{reviewsData.mood}%</span>
+                          <span className="text-sm text-gray-500">Positive Mood</span>
+                        </div>
+                      </div>
+                    )}
                     {reviewsData?.data && reviewsData.data.length > 0 ? (
                       <div className="space-y-4">
                         {reviewsData.data.map((review: Review) => (
@@ -438,13 +479,22 @@ export default function CourseDetailPage() {
                             className="border rounded-lg p-4"
                           >
                             <div className="flex items-start space-x-3">
-                              <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                <User className="h-5 w-5 text-gray-500" />
+                              <div className="relative h-10 w-10 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
+                                {review._user?.image ? (
+                                  <Image
+                                    src={review._user.image}
+                                    alt={review._user?.fullname || "User avatar"}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <User className="h-5 w-5 text-gray-500" />
+                                )}
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
                                   <h4 className="font-medium text-gray-900">
-                                    {review.user.name}
+                                    {review._user?.fullname || "Anonymous"}
                                   </h4>
                                   <div className="flex items-center space-x-1">
                                     {renderStars(review.rating)}
@@ -482,25 +532,40 @@ export default function CourseDetailPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <Button
-                    className="w-full"
-                    size="lg"
-                    onClick={handleAddToCart}
-                    disabled={addToCart.isPending}
-                  >
-                    <ShoppingCart className="h-5 w-5 mr-2" />
-                    Add to Cart
-                  </Button>
+                  {course.subscribed || course.Subscribed ? (
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      size="lg"
+                      asChild
+                    >
+                      <Link href={`/user/courses/${course._id}/lessons/${lessons[0]?._id || ''}`}>
+                        <Play className="h-5 w-5 mr-2" />
+                        Continue Learning
+                      </Link>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        onClick={handleAddToCart}
+                        disabled={addToCart.isPending}
+                      >
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        Add to Cart
+                      </Button>
 
-                  <Button
-                    variant="outline"
-                    className={`w-full ${isSaved ? "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200" : ""}`}
-                    onClick={handleToggleSaved}
-                    disabled={addToSaved.isPending || removeFromSaved.isPending}
-                  >
-                    <Heart className={`h-5 w-5 mr-2 ${isSaved ? "fill-current" : ""}`} />
-                    {isSaved ? "Saved" : "Save for Later"}
-                  </Button>
+                      <Button
+                        variant="outline"
+                        className={`w-full ${isSaved ? "bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-red-200" : ""}`}
+                        onClick={handleToggleSaved}
+                        disabled={addToSaved.isPending || removeFromSaved.isPending}
+                      >
+                        <Heart className={`h-5 w-5 mr-2 ${isSaved ? "fill-current" : ""}`} />
+                        {isSaved ? "Saved" : "Save for Later"}
+                      </Button>
+                    </>
+                  )}
                 </div>
 
                 <div className="mt-6 space-y-3 text-sm">

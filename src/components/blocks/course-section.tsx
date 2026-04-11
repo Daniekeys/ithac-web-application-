@@ -77,7 +77,7 @@ const CourseCard = ({ course }: { course: Course }) => {
               </div>
               <div className="flex items-center bg-slate-50 px-2 py-1 rounded-md">
                 <Users className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
-                {course.enrolled_count || 0}
+                {course.enrolled || 0}
               </div>
               {(course.rating || 0) > 0 && (
                 <div className="flex items-center bg-slate-50 px-2 py-1 rounded-md">
@@ -110,7 +110,7 @@ const dummyCourses: Partial<Course>[] = [
     image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2944&auto=format&fit=crop",
     level: "beginner",
     duration: 48,
-    enrolled_count: 1250,
+    enrolled: 1250,
     rating: 4.8,
     amount: 1999.99,
   },
@@ -121,7 +121,7 @@ const dummyCourses: Partial<Course>[] = [
     image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2670&auto=format&fit=crop",
     level: "advanced",
     duration: 32,
-    enrolled_count: 840,
+    enrolled: 840,
     rating: 4.9,
     amount: 2999.99,
   },
@@ -132,7 +132,7 @@ const dummyCourses: Partial<Course>[] = [
     image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2000&auto=format&fit=crop",
     level: "intermediate",
     duration: 24,
-    enrolled_count: 2100,
+    enrolled: 2100,
     rating: 4.7,
     amount: 3999.99,
   },
@@ -143,7 +143,7 @@ const dummyCourses: Partial<Course>[] = [
     image: "https://images.unsplash.com/photo-1527474305487-b87b222841cc?q=80&w=2874&auto=format&fit=crop",
     level: "advanced",
     duration: 60,
-    enrolled_count: 3400,
+    enrolled: 3400,
     rating: 4.9,
     amount: 4999.99,
   },
@@ -154,7 +154,7 @@ const dummyCourses: Partial<Course>[] = [
     image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop",
     level: "beginner",
     duration: 36,
-    enrolled_count: 4500,
+    enrolled: 4500,
     rating: 4.6,
     amount: 5999.99,
   },
@@ -165,7 +165,7 @@ const dummyCourses: Partial<Course>[] = [
     image: "https://images.unsplash.com/photo-1526498460520-4c246339dccb?q=80&w=2940&auto=format&fit=crop",
     level: "intermediate",
     duration: 40,
-    enrolled_count: 1800,
+    enrolled: 1800,
     rating: 4.8,
     amount: 6999.99,
   }

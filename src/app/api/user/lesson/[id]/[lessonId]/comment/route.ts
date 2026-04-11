@@ -3,13 +3,13 @@ import { ENV } from "@/utils/env";
 
 interface RouteParams {
   params: {
-    courseId: string;
+    id: string; // Used actually for courseId
     lessonId: string;
   };
 }
 
-// Watch a lesson
-export async function GET(req: NextRequest, { params }: RouteParams) {
+// Add comment to lesson
+export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const token = req.cookies.get("token")?.value;
 
@@ -20,14 +20,17 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    const body = await req.json();
+
     const backendResponse = await fetch(
-      `${ENV.API_URL}/user/lesson/${params.courseId}/${params.lessonId}`,
+      `${ENV.API_URL}/user/lesson/${params.id}/${params.lessonId}/comment`,
       {
-        method: "GET",
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(body),
       }
     );
 
@@ -37,7 +40,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           success: false,
-          error: data.error || "Failed to fetch lesson",
+          error: data.error || "Failed to add comment",
         },
         { status: backendResponse.status }
       );
@@ -45,7 +48,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Watch lesson error:", error);
+    console.error("Add lesson comment error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }
