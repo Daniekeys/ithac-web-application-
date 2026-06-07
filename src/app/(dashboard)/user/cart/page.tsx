@@ -46,14 +46,7 @@ export default function CartPage() {
   }, 0);
 
   const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD", // Or "NGN" if based on user request, but usually USD for display unless specified
-    }).format(amount);
-  };
-  
-  const formatNaira = (amount: number) => {
-     return new Intl.NumberFormat("en-NG", {
+    return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: "NGN",
     }).format(amount);
