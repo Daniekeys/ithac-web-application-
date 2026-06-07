@@ -256,3 +256,13 @@ export const useSubscribedCourses = (page = 1, size = 10) => {
     queryFn: () => userCourseService.getSubscribedCourses(page, size),
   });
 };
+
+export const useTrackLessonProgress = () => {
+  return useMutation({
+    mutationFn: ({ lessonId, duration }: { lessonId: string, duration: number }) => 
+      userCourseService.trackLessonProgress(lessonId, duration),
+    onError: (error: any) => {
+      console.error("Failed to track progress:", error);
+    }
+  });
+};

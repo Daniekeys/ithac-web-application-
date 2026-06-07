@@ -239,6 +239,6 @@ export interface CreateReviewData {
 }
 
 export interface CreateLessonCommentData {
-  comment: string;
+  message: string;
   parent?: string; // for replies
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useUserWatchLesson, useAddLessonComment } from "@/hooks/useUserCourse";
+import React, { useState, useEffect, useRef } from "react";
+import { useUserWatchLesson, useAddLessonComment, useTrackLessonProgress } from "@/hooks/useUserCourse";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Lesson, LessonComment } from "@/types/course.types";
+import Link from "next/link";
+import Image from "next/image";
 
 
 interface LessonPlayerProps {
@@ -54,9 +56,16 @@ export default function LessonPlayer({
   const [showComments, setShowComments] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [showResources, setShowResources] = useState(false);
-  const [currentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [showControls, setShowControls] = useState(true);
+  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
   const [comment, setComment] = useState("");
+
+  const trackProgress = useTrackLessonProgress();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
 
   const {
@@ -72,6 +81,26 @@ export default function LessonPlayer({
   const comments: LessonComment[] = lessonData?.comments || [];
   console.log("lesson", lessonData?.data?.url);
 
+  const currentLessonIndex = siblingLessons.findIndex((l: Lesson) => l._id === lessonId);
+  const prevLesson = currentLessonIndex > 0 ? siblingLessons[currentLessonIndex - 1] : null;
+  const nextLesson = currentLessonIndex !== -1 && currentLessonIndex < siblingLessons.length - 1 ? siblingLessons[currentLessonIndex + 1] : null;
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isPlaying && lessonId && videoRef.current) {
+      intervalId = setInterval(() => {
+        const video = videoRef.current;
+        if (video && video.duration > 0) {
+          const percentage = Math.round((video.currentTime / video.duration) * 100);
+          trackProgress.mutate({ lessonId, duration: percentage });
+        }
+      }, 30000);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [isPlaying, lessonId, trackProgress]);
+
   const handleLessonComplete = () => {
     if (onLessonComplete) onLessonComplete();
   };
@@ -84,13 +113,95 @@ export default function LessonPlayer({
     if (onPreviousLesson) onPreviousLesson();
   };
 
-  const handleMute = () => {
-    setIsMuted(!isMuted);
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+    }
   };
 
-  const handleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+    }
   };
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration);
+      // Auto-seek to saved watch_time (assuming watch_time is percentage)
+      if (lesson?.watch_time && lesson.watch_time > 0) {
+        const seekTime = (lesson.watch_time / 100) * videoRef.current.duration;
+        videoRef.current.currentTime = seekTime;
+        setCurrentTime(seekTime);
+      }
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const vol = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.volume = vol;
+      setVolume(vol);
+      setIsMuted(vol === 0);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      const newMuted = !isMuted;
+      videoRef.current.muted = newMuted;
+      setIsMuted(newMuted);
+      if (newMuted) {
+        videoRef.current.volume = 0;
+        setVolume(0);
+      } else {
+        videoRef.current.volume = 1;
+        setVolume(1);
+      }
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      videoContainerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (controlsTimeout) clearTimeout(controlsTimeout);
+    
+    if (isPlaying) {
+      const timeout = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+      setControlsTimeout(timeout);
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   const handleSubmitComment = () => {
     if (comment.trim()) {
@@ -98,7 +209,7 @@ export default function LessonPlayer({
         courseId,
         lessonId,
         commentData: {
-          comment: comment.trim(),
+          message: comment.trim(),
         },
       });
       setComment("");
@@ -155,22 +266,94 @@ export default function LessonPlayer({
     <div className="w-full max-w-6xl mx-auto space-y-6">
       {/* Video Player */}
       <div
+        ref={videoContainerRef}
         className={`relative ${
-          isFullscreen ? "fixed inset-0 z-50 bg-black" : "aspect-video"
-        } bg-black rounded-lg overflow-hidden`}
+          isFullscreen ? "fixed inset-0 z-50 w-full h-full bg-black" : "relative aspect-video bg-black rounded-lg overflow-hidden shadow-xl group"
+        }`}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => isPlaying && setShowControls(false)}
+        onClick={togglePlay}
       >
-        {/* Video Element Placeholder */}
-        <div className="relative w-full h-full bg-black flex items-center justify-center">
-          <video 
-            src={lessonData?.data?.url} 
-            poster={lessonData?.data?.thumbnail} 
-            controls 
-            className="w-full h-full object-contain"
-            onEnded={handleLessonComplete}
-            controlsList="nodownload"
-          >
-            Your browser does not support the video tag.
-          </video>
+        <video 
+          ref={videoRef}
+          src={lessonData?.data?.url} 
+          poster={lessonData?.data?.thumbnail} 
+          className="w-full h-full object-contain cursor-pointer"
+          onEnded={() => { setIsPlaying(false); handleLessonComplete(); }}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          controlsList="nodownload"
+          playsInline
+        />
+
+        {/* Custom YouTube-style Controls Overlay */}
+        <div 
+          className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 flex flex-col justify-end
+            ${showControls || !isPlaying ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Progress Bar */}
+          <div className="w-full h-1.5 mb-4 group/progress cursor-pointer relative flex items-center">
+            <input
+              type="range"
+              min="0"
+              max={duration || 100}
+              value={currentTime}
+              onChange={handleSeek}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            <div className="w-full h-full bg-white/30 rounded-full relative overflow-hidden transition-all group-hover/progress:h-2">
+              <div 
+                className="absolute top-0 left-0 h-full bg-blue-500 rounded-full"
+                style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+              />
+            </div>
+            {/* Scrubber Knob */}
+            <div 
+              className="absolute h-3 w-3 bg-blue-500 rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity z-20 pointer-events-none shadow-sm"
+              style={{ left: `calc(${(currentTime / (duration || 1)) * 100}% - 6px)` }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between text-white">
+            <div className="flex items-center space-x-4">
+              <button onClick={togglePlay} className="hover:text-blue-400 transition-colors focus:outline-none">
+                {isPlaying ? <Pause className="h-6 w-6" fill="currentColor" /> : <Play className="h-6 w-6" fill="currentColor" />}
+              </button>
+
+              <div className="flex items-center space-x-2 group/volume relative">
+                <button onClick={toggleMute} className="hover:text-blue-400 transition-colors focus:outline-none">
+                  {isMuted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                </button>
+                <div className="w-0 overflow-hidden group-hover/volume:w-20 transition-all duration-300 flex items-center">
+                   <input 
+                     type="range" 
+                     min="0" 
+                     max="1" 
+                     step="0.05"
+                     value={isMuted ? 0 : volume}
+                     onChange={handleVolumeChange}
+                     className="w-16 h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-blue-500"
+                   />
+                </div>
+              </div>
+
+              <div className="text-sm font-medium tabular-nums tracking-wide opacity-90">
+                {formatTime(currentTime)} <span className="opacity-60 mx-1">/</span> {formatTime(duration)}
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <button className="hover:text-blue-400 transition-colors focus:outline-none opacity-90 hover:opacity-100">
+                <Settings className="h-5 w-5" />
+              </button>
+              <button onClick={toggleFullscreen} className="hover:text-blue-400 transition-colors focus:outline-none opacity-90 hover:opacity-100">
+                <Maximize className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -410,25 +593,69 @@ export default function LessonPlayer({
             <CardHeader>
               <CardTitle>Lesson Navigation</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={handlePrevious}
-                disabled={!hasPreviousLesson}
-              >
-                <SkipBack className="h-4 w-4 mr-2" />
-                Previous Lesson
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={handleNext}
-                disabled={!hasNextLesson}
-              >
-                Next Lesson
-                <SkipForward className="h-4 w-4 ml-2" />
-              </Button>
+            <CardContent className="space-y-4">
+              {nextLesson && (
+                <div className="space-y-2">
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Up Next</span>
+                  <Link href={`/user/courses/${courseId}/lessons/${nextLesson._id}`} className="group block">
+                    <div className="flex gap-3 items-center rounded-lg hover:bg-gray-50 p-2 -mx-2 transition-colors">
+                      <div className="relative w-24 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+                        <Image
+                          src={nextLesson.thumbnail || "/images/image_placeholder.jpg"}
+                          alt={nextLesson.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform"
+                          sizes="96px"
+                        />
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                           <Play className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {nextLesson.title}
+                        </h4>
+                        <div className="flex items-center text-xs text-gray-500 mt-1">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {nextLesson.duration}m
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+
+              {prevLesson && (
+                <div className="space-y-2 pt-2 border-t">
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Previous</span>
+                  <Link href={`/user/courses/${courseId}/lessons/${prevLesson._id}`} className="group block">
+                    <div className="flex gap-3 items-center rounded-lg hover:bg-gray-50 p-2 -mx-2 transition-colors">
+                      <div className="relative w-24 h-16 rounded overflow-hidden flex-shrink-0 bg-gray-100">
+                        <Image
+                          src={prevLesson.thumbnail || "/images/image_placeholder.jpg"}
+                          alt={prevLesson.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform"
+                          sizes="96px"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {prevLesson.title}
+                        </h4>
+                        <div className="flex items-center text-xs text-gray-500 mt-1">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {prevLesson.duration}m
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+
+              {!nextLesson && !prevLesson && (
+                <p className="text-sm text-gray-500 text-center py-2">No other lessons available.</p>
+              )}
             </CardContent>
           </Card>
         </div>
