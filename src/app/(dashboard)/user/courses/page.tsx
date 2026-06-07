@@ -142,9 +142,15 @@ export default function CoursesPage() {
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t">
-                <span className="text-lg font-bold text-blue-600">
-                  {formatPrice(course.amount || 0)}
-                </span>
+                {course.subscribed || course.Subscribed ? (
+                  <span className="text-lg font-bold text-green-600">
+                    Purchased
+                  </span>
+                ) : (
+                  <span className="text-lg font-bold text-blue-600">
+                    {formatPrice(course.amount || 0)}
+                  </span>
+                )}
                 <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full group-hover:bg-blue-100 transition-colors">
                   View Details
                 </span>

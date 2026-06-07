@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ENV } from "@/utils/env";
 
+export const dynamic = "force-dynamic";
+
 interface RouteParams {
   params: {
-    id: string; // Used actually for courseId
-    lessonId: string;
+    id: string;
   };
 }
 
-// Add comment to lesson
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const token = req.cookies.get("token")?.value;
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const body = await req.json();
 
     const backendResponse = await fetch(
-      `${ENV.API_URL}/user/lesson/${params.lessonId}/comment`,
+      `${ENV.API_URL}/user/lesson/${params.id}/tracking`,
       {
         method: "POST",
         headers: {
@@ -31,6 +31,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
+        cache: "no-store",
       }
     );
 
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           success: false,
-          error: data.error || "Failed to add comment",
+          error: data.error || "Failed to track lesson progress",
         },
         { status: backendResponse.status }
       );
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Add lesson comment error:", error);
+    console.error("Track lesson progress error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

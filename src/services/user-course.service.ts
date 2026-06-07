@@ -141,5 +141,11 @@ export const userCourseService = {
       `/api/user/courses/subscribed?page=${page}&size=${size}`
     );
     return response.data;
+  },
+
+  // Lesson Tracking
+  trackLessonProgress: async (lessonId: string, durationPercentage: number): Promise<any> => {
+    const response = await httpClient.post(`/api/user/lesson/${lessonId}/tracking`, { duration: durationPercentage });
+    return response.data;
   }
 };
